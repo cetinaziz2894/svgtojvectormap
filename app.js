@@ -1,0 +1,56 @@
+let { JSDOM } = require('jsdom')
+var resolve = require('resolve');
+const { parse, stringify } = require('svgson');
+
+resolve('snapsvg', { basedir: __dirname }, function (err, resource) {
+  if (err) console.error(err)
+  else {
+    const options = {
+      runScripts: "dangerously",
+      resources: "usable",
+      url: "file:///prueba.html" // avoid cors error reading svg file
+    };
+    const dom = new JSDOM(`
+      <!DOCTYPE html><html><body><div id="test"></div></body></html>
+    `, options);
+
+    var script = dom.window.document.createElement('script');
+    script.src = `file://${resource}`;
+    var head = dom.window.document.getElementsByTagName('head')[0];
+    head.appendChild(script);
+    script.onload = function () {
+      var s = dom.window.Snap("#test");
+      dom.window.Snap.load("file:///Users/acetin/Desktop/ProjectPersonal/SVGToJVector/countries/afghanistan.svg", onSVGLoaded);
+      function onSVGLoaded(data) {
+        var b = s.append(data);
+        var content = s.node.getElementsByTagName("svg")[0].getElementsByTagName("g")[0];
+        var jsonObject = {};
+        var key = 'paths';
+        jsonObject[key] = [];
+        for (let index = 0; index < content.getElementsByTagName("path").length; index++) {
+          //getCountryInfo(index, content);
+          jsonObject[key] =+ jsonObject[key].push(getCountryInfo(index, content));
+        }
+        console.log(JSON.stringify(jsonObject));
+      }
+
+      function getCountryInfo(index, content) {
+        var country = content.getElementsByTagName("path")[index];
+        // console.log("Country ID: " + country.getAttribute("id"));
+        // console.log("Country Title: " + country.getAttribute("title"));
+        // console.log("Country Class: " + country.getAttribute("class"));
+        // console.log("Country Points: " + country.getAttribute("d"));
+        var countryData = {};
+        var dataKey = country.getAttribute("id");
+        countryData[dataKey] = [];
+        data = {
+          "path":country.getAttribute("d"),
+          "name":country.getAttribute("title")
+        }; 
+        countryData[dataKey].push(data); 
+        //console.log(JSON.stringify(countryData));
+        return countryData;
+      }
+    };
+  }
+});
