@@ -1,6 +1,5 @@
 let { JSDOM } = require('jsdom')
 var resolve = require('resolve');
-const { parse, stringify } = require('svgson');
 const countriesFolder = './countries/';
 const fs = require('fs');
 
