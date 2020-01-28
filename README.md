@@ -1,2 +1,2 @@
-# svgtojvektormap
-svg to jvektor map
+# svgtojvectormap
+svg to jvector map
